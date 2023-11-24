@@ -30,6 +30,7 @@ async function run() {
     await client.connect();
 
     const userCollection = client.db("bloodDB").collection("users");
+    const bloodRequestCollection = client.db("bloodDB").collection("bloodRequest");
 
 
 
@@ -45,7 +46,7 @@ app.get('/users', async (req, res) => {
   res.send(result);
 });
 
-app.get('/dashboard/userProfile/updateUser/:id', async (req, res) => {
+app.get('/dashboard/profile/updateUser/:id', async (req, res) => {
   const id = req.params.id;
   const query = { _id: new ObjectId(id) }
   const result = await userCollection.findOne(query)
@@ -53,7 +54,7 @@ app.get('/dashboard/userProfile/updateUser/:id', async (req, res) => {
 })
 
 
-app.patch('/dashboard/userProfile/updateUser/:id', async (req, res) => {
+app.patch('/dashboard/profile/updateUser/:id', async (req, res) => {
   const id = req.params.id;
   const filter = { _id: new ObjectId(id) }
   const options = { upsert: true }
@@ -71,7 +72,17 @@ app.patch('/dashboard/userProfile/updateUser/:id', async (req, res) => {
   res.send(result)
 })
 
+// * blood request 
+app.post('/bloodRequest', async (req, res) => {
+  const item = req.body;
+  const result = await bloodRequestCollection.insertOne(item);
+  res.send(result);
+});
 
+app.get('/bloodRequest', async (req, res) => {
+  const result = await bloodRequestCollection.find().toArray();
+  res.send(result);
+});
 
 
     // Send a ping to confirm a successful connection
