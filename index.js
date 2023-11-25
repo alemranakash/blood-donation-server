@@ -117,6 +117,29 @@ app.patch('/bloodRequest/cancel/:id', async (req, res) => {
   res.send(result);
 })
 
+// * update blood donation request
+app.patch('/dashboard/donorDashboard/editBloodRequest/:id', async (req, res) => {
+  const id = req.params.id;
+  const filter = { _id: new ObjectId(id) }
+  const options = { upsert: true }
+  const updatedBloodRequest = req.body;
+  const bloodRequest = {
+    $set:{
+      recipientName: updatedBloodRequest.recipientName ,
+      district: updatedBloodRequest.district ,
+      upazila: updatedBloodRequest.upazila , 
+      hospitalName: updatedBloodRequest.hospitalName ,
+      fullAddress: updatedBloodRequest.fullAddress ,
+      donationDate: updatedBloodRequest.donationDate ,
+      donationTime: updatedBloodRequest.donationTime ,
+      requestMessage: updatedBloodRequest.requestMessage
+
+    }
+  }
+  const result = await bloodRequestCollection.updateOne(filter, bloodRequest, options)
+  res.send(result)
+})
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
