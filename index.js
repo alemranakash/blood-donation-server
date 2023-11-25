@@ -62,7 +62,7 @@ app.patch('/dashboard/profile/updateUser/:id', async (req, res) => {
   const user = {
     $set:{
       name: updatedUserData.name, 
-      photoUrl: updatedUserData.photoUrl, 
+      // photoUrl: updatedUserData.photoUrl, 
       bloodGroup: updatedUserData.bloodGroup, 
       district: updatedUserData.district, 
       upazila: updatedUserData.upazila
@@ -71,6 +71,62 @@ app.patch('/dashboard/profile/updateUser/:id', async (req, res) => {
   const result = await userCollection.updateOne(filter, user, options)
   res.send(result)
 })
+
+// * All users actions
+// ! Block
+app.patch('/allUsers/block/:id', async (req, res) => {
+  const id = req.params.id;
+  const filter = { _id: new ObjectId(id) };
+  const updatedDoc = {
+    $set: {
+      status: 'block'
+    }
+  }
+  const result = await userCollection.updateOne(filter, updatedDoc);
+  res.send(result);
+})
+
+// ! Unblock
+app.patch('/allUsers/unBlock/:id', async (req, res) => {
+  const id = req.params.id;
+  const filter = { _id: new ObjectId(id) };
+  const updatedDoc = {
+    $set: {
+      status: 'active'
+    }
+  }
+  const result = await userCollection.updateOne(filter, updatedDoc);
+  res.send(result);
+})
+
+// ! Make Volunteer
+app.patch('/allUsers/makeVolunteer/:id', async (req, res) => {
+  const id = req.params.id;
+  const filter = { _id: new ObjectId(id) };
+  const updatedDoc = {
+    $set: {
+      role: 'volunteer'
+    }
+  }
+  const result = await userCollection.updateOne(filter, updatedDoc);
+  res.send(result);
+})
+
+// ! Make Admin
+app.patch('/allUsers/makeAdmin/:id', async (req, res) => {
+  const id = req.params.id;
+  const filter = { _id: new ObjectId(id) };
+  const updatedDoc = {
+    $set: {
+      role: 'admin'
+    }
+  }
+  const result = await userCollection.updateOne(filter, updatedDoc);
+  res.send(result);
+})
+
+
+
 
 // * blood request 
 app.post('/bloodRequest', async (req, res) => {
@@ -98,6 +154,23 @@ app.patch('/bloodRequest/done/:id', async (req, res) => {
   const updatedDoc = {
     $set: {
       donationStatus: 'done'
+    }
+  }
+  const result = await bloodRequestCollection.updateOne(filter, updatedDoc);
+  res.send(result);
+})
+
+
+// * donate button on DonateDetails page
+app.patch('/bloodRequest/donate/:id', async (req, res) => {
+  const id = req.params.id;
+  const filter = { _id: new ObjectId(id) };
+  const { donorName, donorEmail } = req.body.donorInfo;
+  const updatedDoc = {
+    $set: {
+      donationStatus: 'inprogress',
+      donorName: donorName, 
+      donorEmail: donorEmail
     }
   }
   const result = await bloodRequestCollection.updateOne(filter, updatedDoc);
