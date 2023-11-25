@@ -84,6 +84,39 @@ app.get('/bloodRequest', async (req, res) => {
   res.send(result);
 });
 
+app.delete('/bloodRequest/:id', async (req, res) => {
+  const id = req.params.id;
+  const query = { _id: new ObjectId(id) }
+  const result = await bloodRequestCollection.deleteOne(query);
+  res.send(result);
+})
+
+// * donation done
+app.patch('/bloodRequest/done/:id', async (req, res) => {
+  const id = req.params.id;
+  const filter = { _id: new ObjectId(id) };
+  const updatedDoc = {
+    $set: {
+      donationStatus: 'done'
+    }
+  }
+  const result = await bloodRequestCollection.updateOne(filter, updatedDoc);
+  res.send(result);
+})
+
+// *donation cancellation
+app.patch('/bloodRequest/cancel/:id', async (req, res) => {
+  const id = req.params.id;
+  const filter = { _id: new ObjectId(id) };
+  const updatedDoc = {
+    $set: {
+      donationStatus: 'canceled'
+    }
+  }
+  const result = await bloodRequestCollection.updateOne(filter, updatedDoc);
+  res.send(result);
+})
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
