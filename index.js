@@ -31,6 +31,7 @@ async function run() {
 
     const userCollection = client.db("bloodDB").collection("users");
     const bloodRequestCollection = client.db("bloodDB").collection("bloodRequest");
+    const blogCollection = client.db("bloodDB").collection("blogs");
 
 
 
@@ -200,6 +201,7 @@ app.patch('/dashboard/donorDashboard/editBloodRequest/:id', async (req, res) => 
     $set:{
       recipientName: updatedBloodRequest.recipientName ,
       district: updatedBloodRequest.district ,
+      bloodGroup: updatedBloodRequest.bloodGroup ,
       upazila: updatedBloodRequest.upazila , 
       hospitalName: updatedBloodRequest.hospitalName ,
       fullAddress: updatedBloodRequest.fullAddress ,
@@ -211,6 +213,54 @@ app.patch('/dashboard/donorDashboard/editBloodRequest/:id', async (req, res) => 
   }
   const result = await bloodRequestCollection.updateOne(filter, bloodRequest, options)
   res.send(result)
+})
+
+
+// * blog related apis
+app.post('/blogs', async (req, res) => {
+  const item = req.body;
+  const result = await blogCollection.insertOne(item);
+  res.send(result);
+});
+
+app.get('/blogs', async (req, res) => {
+  const result = await blogCollection.find().toArray();
+  res.send(result);
+});
+
+// ! Publish
+app.patch('/blogs/publish/:id', async (req, res) => {
+  const id = req.params.id;
+  const filter = { _id: new ObjectId(id) };
+  const updatedDoc = {
+    $set: {
+      blogStatus: 'published'
+    }
+  }
+  const result = await blogCollection.updateOne(filter, updatedDoc);
+  res.send(result);
+})
+
+// ! Unpublish
+app.patch('/blogs/unPublish/:id', async (req, res) => {
+  const id = req.params.id;
+  const filter = { _id: new ObjectId(id) };
+  const updatedDoc = {
+    $set: {
+      blogStatus: 'draft'
+    }
+  }
+  const result = await blogCollection.updateOne(filter, updatedDoc);
+  res.send(result);
+})
+
+
+// ! Delete a blog
+app.delete('/blogs/:id', async (req, res) => {
+  const id = req.params.id;
+  const query = { _id: new ObjectId(id) }
+  const result = await blogCollection.deleteOne(query);
+  res.send(result);
 })
 
 
