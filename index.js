@@ -2,6 +2,9 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 require('dotenv').config()
+// !>>>>>> Stripe 1 >>>>>>>
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+// !<<<<<<<<<<<<<<<<<<<<<<<
 const port = process.env.PORT || 5000;
 
 //* Middleware
@@ -32,6 +35,9 @@ async function run() {
     const userCollection = client.db("bloodDB").collection("users");
     const bloodRequestCollection = client.db("bloodDB").collection("bloodRequest");
     const blogCollection = client.db("bloodDB").collection("blogs");
+      // !>>>>>> Stripe 3 >>>>>>>
+      const paymentCollection = client.db("bloodDB").collection("payments");
+      // !<<<<<<<<<<<<<<<<<<<<<<<
 
 
 
@@ -262,6 +268,43 @@ app.delete('/blogs/:id', async (req, res) => {
   const result = await blogCollection.deleteOne(query);
   res.send(result);
 })
+
+
+// * Payment intent
+// !>>>>>> Stripe 2 >>>>>>>
+app.post('/create-payment-intent', async (req, res) => {
+  const { totalAmount } = req.body;
+  const amount = parseInt(totalAmount * 100);
+  // const amount = parseInt(Number(price) * 100);
+
+  console.log(amount, 'amount inside the intent')
+
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount: amount,
+    currency: 'usd',
+    payment_method_types: ['card']
+  });
+
+  res.send({
+    clientSecret: paymentIntent.client_secret
+  })
+});
+// !<<<<<<<<<<<<<<<<<<<<<<<
+
+// !>>>>>> Stripe 4 >>>>>>>
+app.post('/payments', async (req, res) => {
+  const payment = req.body;
+  const paymentResult = await paymentCollection.insertOne(payment);
+  res.send(paymentResult);
+})
+// !<<<<<<<<<<<<<<<<<<<<<<<
+
+// !>>>>>> Stripe 5 >>>>>>>
+app.get('/payments', async (req, res) => {
+  const result = await paymentCollection.find().toArray();
+  res.send(result);
+});
+// !<<<<<<<<<<<<<<<<<<<<<<<
 
 
     // Send a ping to confirm a successful connection
